@@ -1,4 +1,4 @@
-#Contributor
+# Contributor
 A contributor is someone from outside not on the core development team of the project taht wants to contribute some changes to a project. There are three level of code for these work:
 1. upstream, 权限最高的、代码原作者。
 2. oringin, fork的代码在你github上的库，代表远程库
@@ -36,5 +36,5 @@ Now, you should do :
 git pull origin dev:dev 
 to make your local up to date, and change the file manual delete >>> and === and <<<< auto added by git. And give a push so that the change of your both will be resonable.
 
-With a detailed description of github branched and cooperation, see here(https://github.com/structureddynamics/OSF-Web-Services/wiki/Collaboration:-Git-Development-Workflow) and 廖雪峰博客(https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/001375840038939c291467cc7c747b1810aab2fb8863508000)
+With a detailed description of github branched and cooperation, see [here](https://github.com/structureddynamics/OSF-Web-Services/wiki/Collaboration:-Git-Development-Workflow) and [廖雪峰博客](https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/001375840038939c291467cc7c747b1810aab2fb8863508000)
 
