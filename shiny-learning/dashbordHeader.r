@@ -1,5 +1,9 @@
+####### README#######
+#dashbordHeader give your page a header which looks great.
+####### README#######
 if (interactive()) {
   library(shiny)
+  library(shinydashboard)
   
   # A dashboard header with 3 dropdown menus
   header <- dashboardHeader(
