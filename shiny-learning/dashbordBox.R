@@ -1,3 +1,4 @@
+## learn from page: http://rstudio.github.io/shinydashboard/structure.html#boxes
 ## library package ----
 library(shinydashboard)
 library(shiny)
