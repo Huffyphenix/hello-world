@@ -17,8 +17,9 @@ body<-shinydashboard::dashboardBody(
            shinydashboard::box(title = "Box 1",
                                status = "primary",
                                checkboxGroupInput(inputId = "box1",label = "Box 1 Input",
+                                                  inline = TRUE,
                                                   choices = list("Item 1"="1",
-                                                                 "Item 2"="2"),
+                                                                 "Item 2"="2")
                                                   )
                                ),
            shinydashboard::box(title = "Box 2",
@@ -31,7 +32,7 @@ body<-shinydashboard::dashboardBody(
                                collapsed = TRUE,
                                checkboxGroupInput(inputId = "box2",label = "Box 2 Input",
                                                   choices = list("Item 1"="1",
-                                                                 "Item 2"="2"),
+                                                                 "Item 2"="2")
                                )
            )
            ),
