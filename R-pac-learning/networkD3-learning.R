@@ -37,3 +37,15 @@ forceNetwork(Links = MisLinks, Nodes = MisNodes,
 forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source",
              Target = "target", Value = "value", NodeID = "name",
              Group = "group", opacity = 0.4, zoom = TRUE)
+
+# example 3 ## sankeyNetwork---------------------------------------------------------------
+URL <- paste0(
+  "https://cdn.rawgit.com/christophergandrud/networkD3/",
+  "master/JSONdata/energy.json")
+Energy <- jsonlite::fromJSON(URL)
+# Plot
+sankeyNetwork(Links = Energy$links, Nodes = Energy$nodes, Source = "source",
+              Target = "target", Value = "value", NodeID = "name",
+              units = "TWh", fontSize = 12, nodeWidth = 30)
+
+
