@@ -1,5 +1,5 @@
 ui <- navbarPage(
-    "导航条风格",
+    "11111?",
     tabPanel("One", icon=icon("home")),
     tabPanel("Two"),
     navbarMenu(
@@ -8,7 +8,7 @@ ui <- navbarPage(
       tabPanel("Five")
     ),
     navlistPanel(
-      "导航面板风格", widths = c(3, 9),
+      "22222", widths = c(3, 9),
       tabPanel("One", icon=icon("home")),
       tabPanel("Two"),
       navbarMenu(
@@ -17,7 +17,7 @@ ui <- navbarPage(
         tabPanel("Five")
       )
     ),
-    h4("标签页风格"),
+    h4("33333"),
     tabsetPanel(
       "pills",
       tabPanel("One", icon=icon("home")),
