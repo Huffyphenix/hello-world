@@ -54,22 +54,30 @@ displayClusters(W, group) # rough heatmap
 ## for the samples such as the SpectralClustering result and the True label
 survival_info <- time_status %>%
   dplyr::filter(barcode %in% colnames(W)) %>% # colnames(W) change to names(group) when doing single data set(expr, cnv and methy data)
-  dplyr::mutate(color=ifelse(PFS==1,"red","blue"))
+  dplyr::mutate(color=ifelse(PFS==1,"red","blue")) %>%
+  dplyr::mutate(PFS=ifelse(PFS==1,"Dead","Alive")) 
+
 mutation_info <- mutation_burden_class %>%
   dplyr::right_join(survival_info,by="barcode") %>%
   dplyr::select(barcode,mutation_status) %>%
   dplyr::mutate(color = ifelse(mutation_status=="NA","white","grey")) %>%
   dplyr::mutate(color = ifelse(mutation_status=="high_muation_burden","pink",color)) %>%
-  dplyr::mutate(color = ifelse(is.na(color),"white",color))
+  dplyr::mutate(color = ifelse(is.na(color),"white",color)) %>%
+  dplyr::mutate(mutation_status = ifelse(is.na(mutation_status),"NA","High")) %>%
+  dplyr::mutate(mutation_status = ifelse(color=="grey","Low",mutation_status))
 
+purity_info <- tumor_purity %>%
+  dplyr::right_join(survival_info,by="barcode") %>%
+  dplyr::select(barcode,purity) %>%
+  dplyr::mutate(purity = ifelse(is.na(purity),0,purity))
 cancer_color <- readr::read_tsv(file.path("/data/shiny-data/GSCALite","02_pcc.tsv"))
 cancer_info <- cnv_merge_snv_data %>%
   dplyr::select(cancer_types,barcode) %>%
   unique() %>%
   dplyr::filter(barcode %in% colnames(W)) %>%
   dplyr::inner_join(cancer_color,by = "cancer_types")
-M_label=cbind(group,survival_info$PFS,mutation_info$mutation_status,cancer_info$cancer_types)
-colnames(M_label)=c("spectralClustering","PFS.status","mutation_burden_class","cancer_types")
+M_label=cbind(group,survival_info$PFS,mutation_info$mutation_status,cancer_info$cancer_types,purity_info$purity)
+colnames(M_label)=c("spectralClustering","PFS.status","mutation_burden_class","cancer_types","TumorPurity")
 ## ****
 ## Comments
 rownames(M_label)=colnames(W) # To add if the spectralClustering function
@@ -87,10 +95,90 @@ M_label_colors=cbind("spectralClustering"=getColorsForGroups(M_label[,"spectralC
                                                              colors=rainbow(C)),
                      "PFS.status"=survival_info$color,
                      "mutation_burden_class"=mutation_info$color,
-                     "cancer_types"=cancer_info$color)
+                     "cancer_types"=cancer_info$color,
+                     "tumor_purity" = circlize::colorRamp2(c(0,
+                                                             min(purity_info$purity[purity_info$purity>0]),
+                                                             max(purity_info$purity[purity_info$purity>0])),
+                                                           c("white","grey100","grey0"))(purity_info$purity)
+)
 ## Visualize the clusters present in the given similarity matrix
 ## as well as some sample information
 ## In this presentation no clustering method is ran the samples
 ## are ordered in function of their group label present in the group arguments
+# heatmap of the cluster 
+pdf()
 displayClustersWithHeatmap(W, group, M_label_colors[,"spectralClustering"],col = c("blue","red"))
-displayClustersWithHeatmap(W, group, M_label_colors)
+displayClustersWithHeatmap(W, group, M_label_colors,col = RColorBrewer::brewer.pal(9,"YlOrRd"))
+dev.off()
+
+# add legend, with another plot, need to ps them togather with AI.
+pdf()
+par(mfrow=c(1,1))
+plot.new()
+for (i in 1:ncol(M_label)) {
+  legend(i*0.2,0.5,
+         legend=c(M_label[,i] %>% unique()),
+         fill=c(M_label_colors[,i] %>% unique()), 
+         border=T, bty="n", y.intersp = 0.7, cex=0.7,
+         title = colnames(M_label)[i])
+}
+dev.off()
+
+library(ComplexHeatmap)
+
+normalize <- function(X) X/rowSums(X)
+ind <- sort(as.vector(group), index.return = TRUE)
+ind <- ind$ix
+diag(W) <- median(as.vector(W))
+W <- normalize(W)
+W <- W + t(W)
+
+# color file prepare for complexheatmap
+M_label=data.frame("spectralClustering"=group,"PFS.status"=survival_info$PFS,"mutation_burden_class"=mutation_info$mutation_status,"cancer_types"=cancer_info$cancer_types,"TumorPurity"=as.numeric(purity_info$purity))
+rownames(M_label)=colnames(W) # To add if the spectralClustering function
+
+M_label_colors[,"cancer_types"] %>% unique() -> cancer_anno
+names(cancer_anno)= c(M_label$cancer_types %>% as.character() %>% unique())
+
+M_label_colors[,"mutation_burden_class"] %>% unique() -> mutaion_anno
+names(mutaion_anno)= c(M_label$mutation_burden_class %>% as.character() %>% unique())
+
+M_label_colors[,"PFS.status"] %>% unique() -> survival_anno
+names(survival_anno)= c(M_label$PFS.status %>% as.character() %>%unique())
+
+M_label_colors[,"spectralClustering"] %>% unique() -> cluster_anno
+names(cluster_anno)= c(M_label$spectralClustering %>% unique())
+
+# M_label_colors[,"TumorPurity"] %>% unique() -> TumorPurity_anno
+# circlize::colorRamp2(c(0,
+#                        min(purity_info$purity[purity_info$purity>0]),
+#                        max(purity_info$purity[purity_info$purity>0])),
+#                      c("white","grey100","grey0"))(purity_info$purity) -> purity_anno
+# names(purity_anno) = purity_info$purity
+# unique(purity_anno) -> purity_anno
+# 
+# M_label[,"TumorPurity"]=as.numeric(M_label[,"TumorPurity"])
+col_anno <- HeatmapAnnotation(df=M_label,
+                          col = list("spectralClustering"=cluster_anno,
+                                     "PFS.status"=survival_anno,
+                                     "mutation_burden_class"=mutaion_anno,
+                                     "cancer_types"=cancer_anno,
+                                     "TumorPurity"=circlize::colorRamp2(c(0,
+                                                                          min(M_label$TumorPurity[M_label$TumorPurity>0]),
+                                                                          max(M_label$TumorPurity[M_label$TumorPurity>0])),
+                                                                        c("white","grey100","grey0"))),
+                           
+                           width = unit(0.5, "cm"))
+draw(col_anno,1:20)
+
+
+library(circlize)
+he = Heatmap(W[ind, ind],
+             col = RColorBrewer::brewer.pal(9,"YlOrRd"),
+             show_row_names = FALSE, 
+             show_column_names = FALSE,
+             cluster_columns = FALSE,
+             show_row_dend = FALSE, # whether show row clusters.
+             top_annotation = col_anno,show_heatmap_legend = F
+             # heatmap_legend_param = list(title = c("Scaled Exp."))
+             )
