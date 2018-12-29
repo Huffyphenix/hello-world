@@ -111,6 +111,7 @@ displayClustersWithHeatmap(W, group, M_label_colors[,"spectralClustering"],col =
 displayClustersWithHeatmap(W, group, M_label_colors,col = RColorBrewer::brewer.pal(9,"YlOrRd"))
 dev.off()
 
+##############
 # add legend, with another plot, need to ps them togather with AI.
 pdf()
 par(mfrow=c(1,1))
@@ -124,12 +125,15 @@ for (i in 1:ncol(M_label)) {
 }
 dev.off()
 
+##############
+# make heatmap by ComplexHeatmap
 library(ComplexHeatmap)
 
 normalize <- function(X) X/rowSums(X)
 ind <- sort(as.vector(group), index.return = TRUE)
 ind <- ind$ix
-diag(W) <- median(as.vector(W))
+
+(W) <- median(as.vector(W))
 W <- normalize(W)
 W <- W + t(W)
 
@@ -178,7 +182,11 @@ he = Heatmap(W[ind, ind],
              show_row_names = FALSE, 
              show_column_names = FALSE,
              cluster_columns = FALSE,
+             cluster_rows = FALSE,
              show_row_dend = FALSE, # whether show row clusters.
-             top_annotation = col_anno,show_heatmap_legend = F
+             top_annotation = col_anno,show_heatmap_legend = F,
              # heatmap_legend_param = list(title = c("Scaled Exp."))
              )
+pdf()
+he
+dev.off()
