@@ -1,0 +1,8 @@
+y1	Median time	x1	x2	y2
+Time to symptomatic progression	3	0	3	Time to symptomatic progression
+Time to Initial relief 	10	0	10	Time to Initial relief 
+Time to total relief 	14	0	14	Time to total relief 
+Time from symptoms onset to laboratory-confirmed	8	0	8	Time from symptoms onset to laboratory-confirmed
+Time from positive to negative	16	8	24	Time from positive to negative
+Time from total relief to negative 	11	14	25	Time from total relief to negative 
+Time from negative to recurrent positive	16	24	40	Time from negative to recurrent positive
